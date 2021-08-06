@@ -1,7 +1,36 @@
-def discount_inputs(prompt):
+import inquirer
+import random
+import datetime
+
+#Program title
+txt = ("Waikato Air Email Text Generator")
+x = txt.title()
+print(x)
+#I decided to use " " instead of "\n" because "\n" made a larger gap between the lines
+print(" ")
+
+
+def destinations():
+    #Here I used the inquirer module to ask the user for the travel destination
+    choice = [
+        inquirer.List(
+            'destination',
+            message="Please enter the travel destination",
+            choices=['Auckland', 'Wellington',
+                     'Rotorua']  #List of destinations
+        ),
+    ]
+    class_type = inquirer.prompt(choice)
+    print("Destination > " + class_type['destination'].upper()
+          )  #Prints the chosen destination
+    print(' ')
+
+
+def discount_inputs(cue):
+    #This loop ensures that input values are only positive integers
     while True:
         try:
-            value = int(input(prompt))
+            value = int(input(cue))
         except ValueError:
             print("Sorry, please enter a number.")
             continue
@@ -14,18 +43,29 @@ def discount_inputs(prompt):
     return value
 
 
-fare = discount_inputs("Enter the fare discount > ") 
-percentage = discount_inputs("Enter the discount percentage > ")
-
-
 def discount_types():
-    message = ("Please enter the discount type.\n"
-                "Enter 'e' for Economy, 'b' for Business, and 'f' for First.")
+    #I used the inquirer module to ask the user for discount type and confirmation
+    choice = [
+        inquirer.List(
+            'class',
+            message="Enter the discount type",
+            choices=['Economy Class', 'Business Class', 'First Class'],
+        ),
+    ]
+    class_type = inquirer.prompt(choice)
+    print("Discount Type > " + class_type['class'].upper())
 
-    types = {"e": "Economy", "b": "Business", "f": "First"}
+    #Confirmation, yes will continue program no will end it
+    confirmation = [
+        inquirer.Confirm('continue', message="Are you sure?"),
+    ]
+    x = inquirer.prompt(confirmation)
+    print(" ")
 
+#Calling functions
+destinations()
+discount_types()
 
-
-
-
-
+#Variables to ask the user for input
+fare = discount_inputs("Enter the fare discount > $")
+percentage = discount_inputs("Enter the discount percentage > ")
