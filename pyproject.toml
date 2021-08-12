@@ -7,6 +7,7 @@ authors = ["shemaiah17047 <<>>"]
 [tool.poetry.dependencies]
 python = "^3.8"
 inquirer = "^2.7.0"
+pytz = "^2021.1"
 
 [tool.poetry.dev-dependencies]
 

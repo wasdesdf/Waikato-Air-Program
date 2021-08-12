@@ -1,10 +1,11 @@
+#Importing modules
+import sys
 import inquirer
 from inquirer.render.console import ConsoleRender
 from inquirer.render.console._list import List
 import random
-import sys
-import time
-
+from datetime import datetime
+from pytz import timezone
 
 # Program title
 txt = ("Waikato Air Email Text Generator")
@@ -12,7 +13,9 @@ x = txt.title()
 print(x)
 print("\n")
 
+
 # This class adds color to the command line interface
+# I got this code from >> https://github.com/magmax/python-inquirer/issues/11
 class OtherColorList(List):
     def get_options(self):
         choices = self.question.choices
@@ -24,9 +27,10 @@ class OtherColorList(List):
                 color = self.terminal.yellow
                 symbol = '>'
             else:
-                color = self.terminal.normal
+                color = self.terminal.grey
                 symbol = ' '
             yield choice, symbol, color
+
 
 class OtherListConsoleRender(ConsoleRender):
     def render_factory(self, question_type):
@@ -84,12 +88,12 @@ def discount_types():
             ],  # List of plane cabin classes
         ),
     ]
-    class_type = inquirer.prompt(choice, OtherListConsoleRender())
+    class_type = inquirer.prompt(choice, render=OtherListConsoleRender())
 
     # Asks the user to enter Y or N case insensitive
     # Return true if the answer is Y
     answer = ""
-    while answer not in ["y", "n"]:
+    while answer not in ["y", "n", " "]:
         answer = input("You picked " + class_type['class'] +
                        " are you sure? [y/n]: ".lower())
     if answer == "y":
@@ -109,16 +113,28 @@ def discount_types():
             sys.exit()  # Exits the program
 
 
-# This function will hold the text that will be printed 
+def confirmation():
+    pass
+
+
+def dates():
+    tz = timezone('Pacific/Auckland')
+    nz = datetime.now(tz)
+    print(nz.strftime('%Y-%m-%d'))
+
+
+# This function will hold the text that will be printed
 def text():
     email_txt_1 = (" text ")
     vars = [email_txt_1]
     print(random.choice(vars))
 
 destinations()
-discount_types()
-
 
 # Variables to ask the user for input
 fare = discount_inputs("Please enter the fare discount > ")
 percentage = discount_inputs("Please enter the discount percentage > ")
+confirmation_messsage = discount_inputs(
+    "\nYou entered ${} fare discount and {}% percentage discount \n"
+    "\nAre you sure, would you like to continue? [y/n]: ".format(
+        fare, percentage))
