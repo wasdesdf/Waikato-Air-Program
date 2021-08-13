@@ -1,4 +1,4 @@
-#Importing modules
+# Importing modules
 import sys
 import inquirer
 from inquirer.render.console import ConsoleRender
@@ -24,11 +24,11 @@ class OtherColorList(List):
             selected = choice == choices[self.current]
 
             if selected:
-                color = self.terminal.yellow
+                color = self.terminal.orange
                 symbol = '>'
             else:
                 color = self.terminal.grey
-                symbol = ' '
+                symbol = '|'
             yield choice, symbol, color
 
 
@@ -93,7 +93,7 @@ def discount_types():
     # Asks the user to enter Y or N case insensitive
     # Return true if the answer is Y
     answer = ""
-    while answer not in ["y", "n", " "]:
+    while answer not in ["y", "n"]:
         answer = input("You picked " + class_type['class'] +
                        " are you sure? [y/n]: ".lower())
     if answer == "y":
@@ -101,7 +101,8 @@ def discount_types():
         return True
     else:
         while True:
-            answer = str(input('Would you like to start again? [y/n]: '))
+            answer = str(
+                input("Would you like to enter the infomation again? [y/n]: "))
             if answer in ('y', 'n'):
                 break
             print("invalid input.")
@@ -113,28 +114,52 @@ def discount_types():
             sys.exit()  # Exits the program
 
 
-def confirmation():
-    pass
+def confirm_discount_input_choice():
+    print(
+        "\nYou entered ${} fare discount and {}% percentage discount.".format(
+            fare, percentage))
 
-
-def dates():
-    tz = timezone('Pacific/Auckland')
-    nz = datetime.now(tz)
-    print(nz.strftime('%Y-%m-%d'))
+    answer = ""
+    while answer not in ["y", "n"]:
+        answer = input("\nAre you sure, would you like to continue [y/n]: ")
+    if answer == "y":
+        print('\n')
+        return True
+    else:
+        while True:
+            answer = str(
+                input(
+                    "\nWould you like to enter the infomation again? [y/n]: "))
+            if answer in ('y', 'n'):
+                break
+            print("invalid input.")
+        if answer == 'y':
+            print('\n')
+            questions()
+        else:
+            print("Ok, see you next time!")
+            sys.exit()  # Exits the program
 
 
 # This function will hold the text that will be printed
 def text():
-    email_txt_1 = (" text ")
+    email_txt_1 = (" text ")  # This is where i will put the end message
     vars = [email_txt_1]
     print(random.choice(vars))
 
-destinations()
 
-# Variables to ask the user for input
-fare = discount_inputs("Please enter the fare discount > ")
-percentage = discount_inputs("Please enter the discount percentage > ")
-confirmation_messsage = discount_inputs(
-    "\nYou entered ${} fare discount and {}% percentage discount \n"
-    "\nAre you sure, would you like to continue? [y/n]: ".format(
-        fare, percentage))
+destinations()
+discount_types()
+
+
+# Function to ask the user for discount inputs
+def questions():
+    global fare
+    global percentage
+
+    fare = discount_inputs("Please enter the fare discount > ")
+    percentage = discount_inputs("Please enter the discount percentage > ")
+    confirm_discount_input_choice()
+
+
+questions()
