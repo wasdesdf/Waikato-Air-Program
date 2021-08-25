@@ -1,17 +1,26 @@
-# Importing modules
+# Importing modules, I used the inqurer module to create the cool answer selector,
+# sys to exit the program, random to pick a from a selection of different output text, 
+# and python timezone for the date
 import sys
+import random
+import time
 import inquirer
 from inquirer.render.console import ConsoleRender
 from inquirer.render.console._list import List
-import random
 from datetime import datetime
 from pytz import timezone
 
+
 # Program title
-txt = ("Waikato Air Email Text Generator")
-x = txt.title()
-print(x)
-print("\n")
+def delay_print(string):  # This function makes text print out cool
+    for char in string:
+        sys.stdout.write(char)
+        sys.stdout.flush()
+        time.sleep(
+            0.07)  # Used the time module to put a delay between chracters
+
+
+delay_print("Waikato Air Email Text Generator\n\n")
 
 
 # This class adds color to the command line interface
@@ -24,7 +33,7 @@ class OtherColorList(List):
             selected = choice == choices[self.current]
 
             if selected:
-                color = self.terminal.orange
+                color = self.terminal.yellow
                 symbol = '>'
             else:
                 color = self.terminal.grey
@@ -52,9 +61,72 @@ def destinations():
         ),
     ]
     class_type = inquirer.prompt(choice, render=OtherListConsoleRender())
-    print("Your destination is " +
-          class_type['destination'].upper())  # Prints the chosen destination
-    print(' ')
+    fares = {"WLG": 90, "AKL": 83, "ROT": 50}
+    delay_print("\033[1mThe current fare to " + class_type['destination'] +
+                " is {}\033[0m\n\n".format(fares))  # Prints the chosen destination
+
+    confirmation = [
+        inquirer.Confirm('continue',
+                    message="Can the customer fly tomorrow"),
+    ]
+    answers = inquirer.prompt(confirmation)
+
+    answer = ""
+    while answer not in ["y", "n", "Y", "N"]:
+        answer = input()
+    if answer == 'y':
+        print('\n')
+        return True
+    else:
+        while True:
+            answer = str(
+                input("Would you like to enter the infomation again? [y/n]: "))
+            if answer in ('y', 'n', 'Y', 'N'):
+                break
+                print("invalid input.")
+        if answer == 'y':
+            print("Ok, see you next time!")
+            sys.exit()
+
+
+# Discount types function
+def discount_types():
+    # I used the inquirer module to ask the user for discount type
+    choice = [
+        inquirer.List(
+            'class',
+            message="Enter the discount type",
+            choices=[
+                'Economy Class', 'Premium Economy', 'Business Class',
+                'First Class'
+            ],  # List of plane cabin classes
+        ),
+    ]
+    class_type = inquirer.prompt(choice, render=OtherListConsoleRender())
+
+    # Asks the user to confirm wether or not
+    # they are sure they want to continue
+    answer = ""
+    while answer not in ["y", "n", "Y", "N"]:
+        answer = input('\033[1m' + "You picked " +
+                       class_type['class'].lower() +
+                       ", are you sure? [y/n]: " + '\033[0m')
+    if answer == 'y':
+        print('\n')
+        return True
+    else:
+        while True:
+            answer = str(
+                input("Would you like to enter the infomation again? [y/n]: "))
+            if answer in ('y', 'n', 'Y', 'N'):
+                break
+                print("invalid input.")
+        if answer == 'y':
+            print('\n')
+            discount_types()  # Calls this function to restart the program
+        else:
+            print("Ok, see you next time!")
+            sys.exit()  # Exits the program
 
 
 # Discounts inputs functions
@@ -75,54 +147,16 @@ def discount_inputs(prompt):
     return value
 
 
-# Discount types function
-def discount_types():
-    # I used the inquirer module to ask the user for discount type
-    choice = [
-        inquirer.List(
-            'class',
-            message="Enter the discount type",
-            choices=[
-                'Economy Class', 'Premium Economy', 'Business Class',
-                'First Class'
-            ],  # List of plane cabin classes
-        ),
-    ]
-    class_type = inquirer.prompt(choice, render=OtherListConsoleRender())
-
-    # Asks the user to enter Y or N case insensitive
-    # Return true if the answer is Y
-    answer = ""
-    while answer not in ["y", "n"]:
-        answer = input("You picked " + class_type['class'] +
-                       " are you sure? [y/n]: ".lower())
-    if answer == "y":
-        print('\n')
-        return True
-    else:
-        while True:
-            answer = str(
-                input("Would you like to enter the infomation again? [y/n]: "))
-            if answer in ('y', 'n'):
-                break
-            print("invalid input.")
-        if answer == 'y':
-            print('\n')
-            discount_types()  # Calls this function to restart the program
-        else:
-            print("Ok, see you next time!")
-            sys.exit()  # Exits the program
-
-
-def confirm_discount_input_choice():
-    print(
-        "\nYou entered ${} fare discount and {}% percentage discount.".format(
-            fare, percentage))
+def confirm_choice():
+    delay_print(
+        '\n\033[1m' +
+        "You entered ${} fare discount and {}% percentage discount.\033[0m\n\n"
+        .format(fare, percentage))
 
     answer = ""
     while answer not in ["y", "n"]:
         answer = input("\nAre you sure, would you like to continue [y/n]: ")
-    if answer == "y":
+    if answer == 'y':
         print('\n')
         return True
     else:
@@ -141,25 +175,22 @@ def confirm_discount_input_choice():
             sys.exit()  # Exits the program
 
 
-# This function will hold the text that will be printed
-def text():
-    email_txt_1 = (" text ")  # This is where i will put the end message
-    vars = [email_txt_1]
-    print(random.choice(vars))
-
-
 destinations()
 discount_types()
+
+delay_print("Please enter the discount fare and percentage below:\n\n")
 
 
 # Function to ask the user for discount inputs
 def questions():
-    global fare
+    global fare  # I made these global variables so I could use them
+    # to format the message in the confirm_discount_input_choice function
     global percentage
 
     fare = discount_inputs("Please enter the fare discount > ")
+    print(' ')
     percentage = discount_inputs("Please enter the discount percentage > ")
-    confirm_discount_input_choice()
+    confirm_choice()
 
 
 questions()
