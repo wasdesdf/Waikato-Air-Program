@@ -24,7 +24,7 @@ class OtherColorList(List):
             selected = choice == choices[self.current]
 
             if selected:
-                color = self.terminal.blue
+                color = self.terminal.yellow
                 symbol = '>'
             else:
                 color = self.terminal.grey
@@ -70,7 +70,7 @@ def Fares(prompt):
         if answer in ("y", "n"):
             if answer == "n":
                 print(
-                    "Sorry, this program only works for customers flying the next day"
+                    "Sorry, this program only works for customers flying the next day."
                 )
                 sys.exit()
             else:
@@ -79,10 +79,12 @@ def Fares(prompt):
 
 
 def Cabin_Class():
+    global class_type
+    global discounted_fare
     cabin_classes = [
         inquirer.List(
             'class',
-            message="Please enter class of which the discount will be applied",
+            message="Please the cabin class",
             choices=[
                 'Economy Class', 'Premium Economy', 'Business Class',
                 'First Class'
@@ -93,32 +95,92 @@ def Cabin_Class():
                                  render=OtherListConsoleRender())
 
     if class_type['class'] == 'Economy Class':
-        x = original_price * 1
+        discounted_fare = original_price * 1
 
     elif class_type['class'] == 'Premium Economy':
-        x = original_price * 1.4
+        discounted_fare = original_price * 1.4
 
     elif class_type['class'] == 'Business Class':
-        x = original_price * 1.6
+        discounted_fare = original_price * 1.6
 
     elif class_type['class'] == 'First Class':
-        x = original_price * 2
+        discounted_fare = original_price * 2
 
     else:
         sys.exit()
 
-    delay_print("The current flight fare to {} in {} is ${}".format(
-        destination['destination'], class_type['class'], x))
+    delay_print("The flight fare to {} in {} is ${:.2f}".format(
+        destination['destination'], class_type['class'], discounted_fare))
+
+    while True:
+        answer = input(Colour.BOLD +
+                       "\n\nWould you like to continue? [y/n]: " +
+                       Colour.END).strip().lower()
+        if answer in ("y", "n"):
+            if answer == "n":
+                print("Ok, see you next time!")
+                sys.exit()
+            else:
+                print('')
+                return True
 
 
 def Discount():
-    pass
+    global discounted_price
+    discount = click.prompt("\nPlease enter the discount percentage",
+                            prompt_suffix=': %',
+                            type=int)
+    discounted_price = discounted_fare - (discounted_fare * discount / 100)
+    delay_print(Colour.BOLD +
+                "\nThe discounted price to {} in {} is ${:.2f}".format(
+                    destination['destination'], class_type['class'],
+                    discounted_price) + Colour.END)
 
+    answer = ""
+    while answer not in ["y", "n"]:
+        answer = input(Colour.BOLD + "\n\nAre you sure? [y/n]: " + Colour.END)
+    if answer == 'y':
+        print('\n')
+        return True
+    else:
+        while True:
+            answer = str(
+                input(
+                    Colour.BOLD +
+                    "\nWould you like to enter the infomation again? [y/n]: " +
+                    Colour.END))
+            if answer in ('y', 'n', 'Y', 'N'):
+                break
+                print("invalid input.")
+        if answer == 'y':
+            print('\n')
+            Discount()
+        else:
+            print("Ok, see you next time!")
+            sys.exit()
+
+
+def Seats():
+    seats = (168)
+    calc_const = 0.2
+
+    for seat in seats:
+        x = discounted_price + calc_const
+        return seats
+
+    delay_print(Colour.BOLD +
+                "The current seating capacity is {}\n".format(seats) +
+                Colour.END)
+
+    delay_print(Colour.BOLD + "".format() + Colour.END)
 
 
 Destinations()
 original_price = click.prompt('Please enter the flight fare to {}'.format(
     destination['destination']),
+                              prompt_suffix=": $",
                               type=int)
 print('\n')
 Cabin_Class()
+Discount()
+Seats()
