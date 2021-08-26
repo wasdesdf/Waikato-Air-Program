@@ -1,30 +1,21 @@
-# Importing modules, I used the inqurer module to create the cool answer selector,
-# sys to exit the program, random to pick a from a selection of different output text, 
-# and python timezone for the date
 import sys
-import random
 import time
+import click
 import inquirer
 from inquirer.render.console import ConsoleRender
 from inquirer.render.console._list import List
-from datetime import datetime
-from pytz import timezone
 
 
-# Program title
-def delay_print(string):  # This function makes text print out cool
+def delay_print(string):
     for char in string:
         sys.stdout.write(char)
         sys.stdout.flush()
-        time.sleep(
-            0.07)  # Used the time module to put a delay between chracters
+        time.sleep(0.07)
 
 
-delay_print("Waikato Air Email Text Generator\n\n")
+delay_print("Waikato Air Email Text Generator\n\n\n")
 
 
-# This class adds color to the command line interface
-# I got this code from >> https://github.com/magmax/python-inquirer/issues/11
 class OtherColorList(List):
     def get_options(self):
         choices = self.question.choices
@@ -33,11 +24,11 @@ class OtherColorList(List):
             selected = choice == choices[self.current]
 
             if selected:
-                color = self.terminal.yellow
+                color = self.terminal.blue
                 symbol = '>'
             else:
                 color = self.terminal.grey
-                symbol = '|'
+                symbol = ''
             yield choice, symbol, color
 
 
@@ -48,149 +39,86 @@ class OtherListConsoleRender(ConsoleRender):
         return OtherColorList
 
 
-# Destination function
-def destinations():
-    # Here I used the inquirer module to ask the user for
-    # the travel destination
-    choice = [
-        inquirer.List(
-            'destination',
-            message="Please enter the travel destination",
-            choices=['Auckland', 'Wellington',
-                     'Rotorua']  # List of destinations
-        ),
+class Colour:
+    PURPLE = '\033[95m'
+    CYAN = '\033[96m'
+    DARKCYAN = '\033[36m'
+    BLUE = '\033[94m'
+    GREEN = '\033[92m'
+    YELLOW = '\033[93m'
+    RED = '\033[91m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+    END = '\033[0m'
+
+
+def Destinations():
+    global destination
+    destination_choices = [
+        inquirer.List('destination',
+                      message="Please enter the travel destination",
+                      choices=['Auckland', 'Wellington', 'Rotorua']),
     ]
-    class_type = inquirer.prompt(choice, render=OtherListConsoleRender())
-    fares = {"WLG": 90, "AKL": 83, "ROT": 50}
-    delay_print("\033[1mThe current fare to " + class_type['destination'] +
-                " is {}\033[0m\n\n".format(fares))  # Prints the chosen destination
-
-    confirmation = [
-        inquirer.Confirm('continue',
-                    message="Can the customer fly tomorrow"),
-    ]
-    answers = inquirer.prompt(confirmation)
-
-    answer = ""
-    while answer not in ["y", "n", "Y", "N"]:
-        answer = input()
-    if answer == 'y':
-        print('\n')
-        return True
-    else:
-        while True:
-            answer = str(
-                input("Would you like to enter the infomation again? [y/n]: "))
-            if answer in ('y', 'n', 'Y', 'N'):
-                break
-                print("invalid input.")
-        if answer == 'y':
-            print("Ok, see you next time!")
-            sys.exit()
+    destination = inquirer.prompt(destination_choices,
+                                  render=OtherListConsoleRender())
 
 
-# Discount types function
-def discount_types():
-    # I used the inquirer module to ask the user for discount type
-    choice = [
+def Fares(prompt):
+    while True:
+        answer = input("\nCan the customer fly tomorrow? [y/n]: " +
+                       Colour.END).strip().lower()
+        if answer in ("y", "n"):
+            if answer == "n":
+                print(
+                    "Sorry, this program only works for customers flying the next day"
+                )
+                sys.exit()
+            else:
+                print('')
+                return True
+
+
+def Cabin_Class():
+    cabin_classes = [
         inquirer.List(
             'class',
-            message="Enter the discount type",
+            message="Please enter class of which the discount will be applied",
             choices=[
                 'Economy Class', 'Premium Economy', 'Business Class',
                 'First Class'
-            ],  # List of plane cabin classes
+            ],
         ),
     ]
-    class_type = inquirer.prompt(choice, render=OtherListConsoleRender())
+    class_type = inquirer.prompt(cabin_classes,
+                                 render=OtherListConsoleRender())
 
-    # Asks the user to confirm wether or not
-    # they are sure they want to continue
-    answer = ""
-    while answer not in ["y", "n", "Y", "N"]:
-        answer = input('\033[1m' + "You picked " +
-                       class_type['class'].lower() +
-                       ", are you sure? [y/n]: " + '\033[0m')
-    if answer == 'y':
-        print('\n')
-        return True
+    if class_type['class'] == 'Economy Class':
+        x = original_price * 1
+
+    elif class_type['class'] == 'Premium Economy':
+        x = original_price * 1.4
+
+    elif class_type['class'] == 'Business Class':
+        x = original_price * 1.6
+
+    elif class_type['class'] == 'First Class':
+        x = original_price * 2
+
     else:
-        while True:
-            answer = str(
-                input("Would you like to enter the infomation again? [y/n]: "))
-            if answer in ('y', 'n', 'Y', 'N'):
-                break
-                print("invalid input.")
-        if answer == 'y':
-            print('\n')
-            discount_types()  # Calls this function to restart the program
-        else:
-            print("Ok, see you next time!")
-            sys.exit()  # Exits the program
+        sys.exit()
+
+    delay_print("The current flight fare to {} in {} is ${}".format(
+        destination['destination'], class_type['class'], x))
 
 
-# Discounts inputs functions
-def discount_inputs(prompt):
-    # This loop ensures that the input values are only positive integers
-    while True:
-        try:
-            value = int(input(prompt))
-        except ValueError:
-            print("Sorry, please enter a number.\n")
-            continue
-
-        if value < 0:
-            print("Sorry, your input can't be negative.\n")
-            continue
-        else:
-            break
-    return value
+def Discount():
+    pass
 
 
-def confirm_choice():
-    delay_print(
-        '\n\033[1m' +
-        "You entered ${} fare discount and {}% percentage discount.\033[0m\n\n"
-        .format(fare, percentage))
 
-    answer = ""
-    while answer not in ["y", "n"]:
-        answer = input("\nAre you sure, would you like to continue [y/n]: ")
-    if answer == 'y':
-        print('\n')
-        return True
-    else:
-        while True:
-            answer = str(
-                input(
-                    "\nWould you like to enter the infomation again? [y/n]: "))
-            if answer in ('y', 'n'):
-                break
-            print("invalid input.")
-        if answer == 'y':
-            print('\n')
-            questions()
-        else:
-            print("Ok, see you next time!")
-            sys.exit()  # Exits the program
-
-
-destinations()
-discount_types()
-
-delay_print("Please enter the discount fare and percentage below:\n\n")
-
-
-# Function to ask the user for discount inputs
-def questions():
-    global fare  # I made these global variables so I could use them
-    # to format the message in the confirm_discount_input_choice function
-    global percentage
-
-    fare = discount_inputs("Please enter the fare discount > ")
-    print(' ')
-    percentage = discount_inputs("Please enter the discount percentage > ")
-    confirm_choice()
-
-
-questions()
+Destinations()
+original_price = click.prompt('Please enter the flight fare to {}'.format(
+    destination['destination']),
+                              type=int)
+print('\n')
+Cabin_Class()

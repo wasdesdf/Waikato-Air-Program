@@ -8,6 +8,7 @@ authors = ["shemaiah17047 <<>>"]
 python = "^3.8"
 inquirer = "^2.7.0"
 pytz = "^2021.1"
+click = "^8.0.1"
 
 [tool.poetry.dev-dependencies]
 
