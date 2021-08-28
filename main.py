@@ -1,6 +1,7 @@
 import sys
 import time
 import click
+import random
 import inquirer
 from inquirer.render.console import ConsoleRender
 from inquirer.render.console._list import List
@@ -10,7 +11,7 @@ def delay_print(string):
     for char in string:
         sys.stdout.write(char)
         sys.stdout.flush()
-        time.sleep(0.07)
+        time.sleep(0.05)
 
 
 delay_print("Waikato Air Email Text Generator\n\n\n")
@@ -127,6 +128,7 @@ def Cabin_Class():
 
 def Discount():
     global discounted_price
+    global discount
     discount = click.prompt("\nPlease enter the discount percentage",
                             prompt_suffix=': %',
                             type=int)
@@ -138,7 +140,7 @@ def Discount():
 
     answer = ""
     while answer not in ["y", "n"]:
-        answer = input(Colour.BOLD + "\n\nAre you sure? [y/n]: " + Colour.END)
+        answer = input("\n\nAre you sure? [y/n]: ")
     if answer == 'y':
         print('\n')
         return True
@@ -151,7 +153,7 @@ def Discount():
                     Colour.END))
             if answer in ('y', 'n', 'Y', 'N'):
                 break
-                print("invalid input.")
+                print(Colour.RED + "\nInvalid input!" + Colour.END)
         if answer == 'y':
             print('\n')
             Discount()
@@ -161,18 +163,59 @@ def Discount():
 
 
 def Seats():
-    seats = (168)
-    calc_const = 0.2
-
-    for seat in seats:
-        x = discounted_price + calc_const
-        return seats
-
+    seats = 168
     delay_print(Colour.BOLD +
-                "The current seating capacity is {}\n".format(seats) +
+                "The current seating capacity is {}\n\n".format(seats) +
                 Colour.END)
 
     delay_print(Colour.BOLD + "".format() + Colour.END)
+
+
+def Loading_Animation():
+    pass
+
+
+def Email():
+    customer_name = click.prompt("\nPlease enter the customers first name\n",
+                                 type=str)
+
+    email_subject = delay_print("\n\nSubject:\n" +
+                                "{}%! discount on Waikato Air {} flights".
+                                format(discount, class_type['class']).title())
+
+    email_text_1 = delay_print(
+        "\n\nText:\n" + "Dear {},\n\n".format(customer_name.title()) +
+        "Whether you're looking for the lowest price, the most amount of flexibility or \n"
+        "extra benefits, waikato air has the best fares for you.\n\n"
+        "We are currently introducing a {}% discount on all {} flights to {}.\n"
+        "Book now while seats last!".format(discount, class_type['class'],
+                                            destination['destination']))
+
+    if destination['destination'] == 'Wellington':
+        events = ("Te Papa mueseum to it's\n"
+                  "hunderds of different restaraunts\n"
+                  "and everything in between!")
+
+    elif destination['destination'] == 'Auckland':
+        events = ("events such as the Auckland Lantern Festival\n"
+                  "to asb classic and activities such as the Sky Tower"
+                  "bungee jump or the Auckland art gallery.\n")
+
+    elif destination['destination'] == 'Rotorua':
+        events = ("the Skyline luge cart and gondala to \n"
+                  "Crankworx mountain biking compitition\n"
+                  "Rotorua has a place for you!\n")
+
+    else:
+        sys.exit()
+
+    email_text_2 = delay_print(
+        "\n\nText:\n" + "Hi {},\n\n".format(customer_name.title()) +
+        "{} has something for everyone from {}\n".format(
+            destination['destination'], events) +
+        "\nWaikato air is currently having a {}% off sale on all {} flights to {}.\n"
+        "Book now while seats last!\n".format(discount, class_type['class'],
+                                              destination['destination']))
 
 
 Destinations()
@@ -184,3 +227,5 @@ print('\n')
 Cabin_Class()
 Discount()
 Seats()
+Loading_Animation()
+Email()
