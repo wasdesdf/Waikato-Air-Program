@@ -3,8 +3,6 @@ import time  # For delay
 import click  # For inputs
 import random  # To pick a random function
 import inquirer  # For inputs
-import itertools
-from threading import Thread
 from itertools import cycle, islice  #  For infinite cycling through a list
 from inquirer.render.console import ConsoleRender  # To customize inquirer inputs
 from inquirer.render.console._list import List  # ------------------
@@ -21,7 +19,7 @@ def delay_print(string):
         )  # Used to set the delay between the characters/sets the animation speed
 
 
-# Here it is being used to print the program title.
+# Here the function is being used to print the program title.
 delay_print("Waikato Air Email Text Generator\n\n\n".title())
 
 
@@ -34,7 +32,7 @@ class OtherColorList(List):
             selected = choice == choices[self.current]
 
             if selected:
-                color = self.terminal.cyan
+                color = self.terminal.yellow
                 symbol = '>'
             else:
                 color = self.terminal.grey
@@ -63,27 +61,28 @@ class Colour:
 
 
 # I had to create two seprate "remove line" functions
-# because I couldn't figure out how to create one function
-# for two different uses.
+# because I couldn't be bothered to figure out
+# how to create one function for two different uses.
 
-CURSOR_UP_ONE = '\x1b[1A'
-ERASE_LINE = '\x1b[2K'
+cursor_up_one = '\x1b[1A'  # ANSI escape code to move cursor
+erase_line = '\x1b[2K'  # ANSI escape code to remove text
 
 
-def Remove_Cabin_Class_Lines(n=17):
+def Remove_Cabin_Class_Lines(n=18):
     for _ in range(n):
-        sys.stdout.write(CURSOR_UP_ONE)
-        sys.stdout.write(ERASE_LINE)
+        sys.stdout.write(cursor_up_one)
+        sys.stdout.write(erase_line)
 
 
 def Remove_Discount_Lines(n=8):
     for _ in range(n):
-        sys.stdout.write(CURSOR_UP_ONE)
-        sys.stdout.write(ERASE_LINE)
+        sys.stdout.write(cursor_up_one)
+        sys.stdout.write(erase_line)
 
 
+# Destination function
 def Destinations():
-    global destination
+    global destination  # To use it in formatting the email text
     destination_choices = [
         inquirer.List('destination',
                       message="Please enter the travel destination",
@@ -93,19 +92,23 @@ def Destinations():
                                   render=OtherListConsoleRender())
 
 
+# Flight confirmation function, I originally had
+# written code below in the calling functions part of the program
+# because I was calling the Original_Price and Cabin_Class functions
+# but it's much more tidy to do up it here
 def Flight_Confirmation():
-    while True:
-        answer = input(
-            "Can the customer fly tomorrow? [y/n]: ").strip().lower()
-        if answer in ("y", "n"):
-            if answer == "n":
-                print(
-                    "Sorry, this program only works for customers flying the next day."
-                )
-                sys.exit()
-            else:
-                print('')
-                return True
+    flight_confirmation = click.confirm("Can the customer fly tomorrow",
+                                        default=True)
+
+    if flight_confirmation == True:
+        Original_Price()
+        delay_print('\n')
+        Cabin_Class()
+
+    elif flight_confirmation == False:
+        delay_print(
+            "\nSorry, this program is only for users flying the next day.\n")
+        sys.exit()
 
 
 def Original_Price():
@@ -144,9 +147,6 @@ def Cabin_Class():
 
     elif class_type['class'] == 'First Class':
         discounted_fare = original_price * 2
-
-    else:
-        sys.exit()
 
     delay_print("The flight fare to {} in {} is ${:.2f}".format(
         destination['destination'], class_type['class'], discounted_fare))
@@ -217,8 +217,8 @@ def Seats():
 
 
 def Email():
-    global customer_name
-    global events
+    global customer_name  # These are global variables because I wanted
+    global events  # to use them in formatting the email text
     customer_name = click.prompt("\nPlease enter the customers first name",
                                  type=str)
 
@@ -227,14 +227,14 @@ def Email():
                                 format(discount, class_type['class']).title())
 
     if destination['destination'] == 'Wellington':
-        events = ("Te Papa mueseum to it's\n"
-                  "hunderds of different restaraunts\n"
-                  "and everything in between!")
+        events = (
+            "Te Papa mueseum to it's\n"
+            "hunderds of different restaraunts and everything in between!\n")
 
     elif destination['destination'] == 'Auckland':
         events = ("events such as the Auckland Lantern Festival\n"
                   "to asb classic and activities such as the Sky Tower"
-                  "bungee jump or the Auckland art gallery.\n")
+                  " bungee jump or the Auckland art gallery.\n")
 
     elif destination['destination'] == 'Rotorua':
         events = ("the Skyline luge cart and gondala to \n"
@@ -275,26 +275,45 @@ def Text_3():
     pass
 
 
+def Text_4():
+    pass
+
+
+seats = 168
+
+
+def Seats():
+    delay_print("\nThe current seating capacity is {}\n".format(seats))
+
+
+def Restart():
+    global seats
+
+    while True:
+        restart = click.confirm(
+            '\n\nWould you like to generate another email?', default=True)
+
+        if restart:
+            seats -= 1
+            Seats()
+            Email()
+            x = [Text_1, Text_2]
+            random.choice(x)()
+        else:
+            delay_print("\nOk, see you next time!\n")
+            sys.exit()
+
+
 # Calling functions
 Destinations()
-
-flight_confirmation = click.confirm("Can the customer fly tomorrow",
-                                    default=True)
-
-if flight_confirmation == True:
-    Original_Price()
-    delay_print('\n')
-    Cabin_Class()
-elif flight_confirmation == False:
-    delay_print(
-        "\nSorry, this program is only for users flying the next day.\n")
-    sys.exit()
-
+Flight_Confirmation()
 Discount()
 Seats()
 Email()
 
-x = [Text_1, Text_2]
-random.choice(x)()
+x = [Text_1, Text_2]  # This bit of code picks a random function
+random.choice(x)()  # containing the email that will be printed
+# I did this so that the program will print
+# out different text each time.
 
-restart()
+Restart()
