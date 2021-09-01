@@ -275,19 +275,6 @@ def Text_3():
     pass
 
 
-def restart():
-    restart = click.confirm('\n\nWould you like to generate another email?',
-                            default=True)
-
-    if restart == True:
-        x = seats - 1
-        Seats()
-        Email()
-    elif restart == False:
-        delay_print("Ok, see you next time!\n")
-        sys.exit()
-
-
 # Calling functions
 Destinations()
 
